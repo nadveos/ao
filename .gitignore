@@ -11,7 +11,7 @@
 .swiftpm/
 migrate_working_dir/
 
-!/build/web/
+
 # IntelliJ related
 *.iml
 *.ipr
@@ -32,6 +32,9 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+# Ignorar todo el contenido de build excepto build/web
+/build/*
+!/build/web/
 
 # Symbolication related
 app.*.symbols
