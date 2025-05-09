@@ -1,6 +1,6 @@
 {
-    "name": "almacen_de_ofertas",
-    "short_name": "almacen_de_ofertas",
+    "name": "Almacén de Ofertas",
+    "short_name": "AO",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
