@@ -24,6 +24,7 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        centerTitle: true,
         actions: [
           Stack(
             alignment: Alignment.center,
