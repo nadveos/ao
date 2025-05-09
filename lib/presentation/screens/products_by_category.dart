@@ -16,7 +16,7 @@ class ProductsByCategoryPage extends ConsumerStatefulWidget {
 
 class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage> {
   final Map<RecordModel, int> cart = {}; // Carrito temporal
- bool isZoomed = false; // Estado para el zoom de la imagen
+ bool isZoomed = true; // Estado para el zoom de la imagen
   @override
   Widget build(BuildContext context) {
     final allProductsAsyncValue = ref.watch(allProductsProvider);
@@ -68,6 +68,16 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                                 'Total a pagar: \$${total.toStringAsFixed(2)}',
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
+                              ),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  setState(() {
+                                    cart.clear(); // Limpiar el carrito
+                                  });
+                                  Navigator.pop(context); // Cerrar el modal
+                                },
+                                icon: const Icon(Icons.delete),
+                                label: const Text('Limpiar Carrito'),
                               ),
                               const SizedBox(height: 16),
                               ElevatedButton.icon(
@@ -150,7 +160,7 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        'Si estas en zona sur de la ciudad de Salta, hace tu pedido y recibilo en la comidad de tu hogar.\nRecordá enviar tu ubicación exacta y un número de contacto alternativo para coordinar la entrega.',
+                        'Si estas en zona sur de la ciudad de Salta, hace tu pedido y recibilo en la comidad de tu hogar GRAITS.\nOtras zonas de la ciudad , con envio BONIFICADO.\nRecordá enviar tu dirección/ubicación exacta y un número de contacto alternativo para coordinar la entrega.',
                         softWrap: true,
                       ),
                     ),
@@ -158,7 +168,7 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                       padding: const EdgeInsets.all(8.0),
                       child: RichText(
                         text: TextSpan(
-                          text: '* Envío gratis en compras mayores a \$10.000',
+                          text: '* Envío gratis en compras mayores a \$15.000',
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -171,7 +181,7 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                       padding: const EdgeInsets.only(bottom:8.0),
                       child: RichText(
                         text: TextSpan(
-                          text: '** Los envios son despachados desde las 18hs en adelante de Lunes a Viernes',
+                          text: '** Los envios son despachados por Uber Envios',
                           style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
                         ),
                       ),
