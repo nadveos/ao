@@ -16,177 +16,263 @@ class ProductsByCategoryPage extends ConsumerStatefulWidget {
 
 class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage> {
   final Map<RecordModel, int> cart = {}; // Carrito temporal
-
+ bool isZoomed = false; // Estado para el zoom de la imagen
   @override
   Widget build(BuildContext context) {
     final allProductsAsyncValue = ref.watch(allProductsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        centerTitle: true,
-        actions: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.shopping_cart),
-                onPressed: () {
-                  // Mostrar el contenido del carrito en un modal
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (context) {
-                      double total = 0.0;
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.shopping_cart, size: 40),
+              onPressed: () {
+                // Mostrar el contenido del carrito en un modal
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) {
+                    double total = 0.0;
 
-                      return Column(
-                        children: [
-                          Expanded(
-                            child: ListView(
-                              children:
-                                  cart.entries.map((entry) {
-                                    final product = entry.key;
-                                    final quantity = entry.value;
-                                    final price = product.data['price'] ?? 0.0;
-                                    final discountedPrice = price * 0.9;
-                                    final totalPrice = discountedPrice * quantity;
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: ListView(
+                            children:
+                                cart.entries.map((entry) {
+                                  final product = entry.key;
+                                  final quantity = entry.value;
+                                  final price = product.data['price'] ?? 0.0;
+                                  final discountedPrice = price * 0.9;
+                                  final totalPrice = discountedPrice * quantity;
 
-                                    total += totalPrice;
+                                  total += totalPrice;
 
-                                    return ListTile(
-                                      title: Text(product.data['name'] ?? 'Producto'),
-                                      subtitle: Text(
-                                        'Cantidad: $quantity\nPrecio con descuento: \$${discountedPrice.toStringAsFixed(2)}\nTotal: \$${totalPrice.toStringAsFixed(2)}',
-                                      ),
-                                    );
-                                  }).toList(),
-                            ),
+                                  return ListTile(
+                                    title: Text(product.data['name'] ?? 'Producto'),
+                                    subtitle: Text(
+                                      'Cantidad: $quantity\nPrecio con descuento: \$${discountedPrice.toStringAsFixed(2)}\nTotal: \$${totalPrice.toStringAsFixed(2)}',
+                                    ),
+                                  );
+                                }).toList(),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text(
-                                  'Total a pagar: \$${total.toStringAsFixed(2)}',
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 16),
-                                ElevatedButton.icon(
-                                  onPressed: () {
-                                    final message = generateWhatsAppMessage();
-                                    onLaunch('https://wa.me/543875152627?text=${Uri.encodeComponent(message)}');
-                                  },
-                                  icon: const Icon(Icons.send),
-                                  label: const Text('Enviar Pedido por WhatsApp'),
-                                ),
-                              ],
-                            ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                'Total a pagar: \$${total.toStringAsFixed(2)}',
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  final message = generateWhatsAppMessage();
+                                  onLaunch('https://wa.me/543875152627?text=${Uri.encodeComponent(message)}');
+                                },
+                                icon: const Icon(Icons.send),
+                                label: const Text('Enviar Pedido por WhatsApp'),
+                              ),
+                            ],
                           ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
-              if (cart.isNotEmpty)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: CircleAvatar(
-                    radius: 10,
-                    backgroundColor: Colors.red,
-                    child: Text(
-                      '${cart.values.fold<int>(0, (sum, quantity) => sum + quantity)}',
-                      style: const TextStyle(color: Colors.white, fontSize: 12),
-                    ),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+            if (cart.isNotEmpty)
+              Positioned(
+                right: 8,
+                top: 8,
+                child: CircleAvatar(
+                  radius: 10,
+                  backgroundColor: Colors.red,
+                  child: Text(
+                    '${cart.values.fold<int>(0, (sum, quantity) => sum + quantity)}',
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 ),
-            ],
-          ),
-        ],
+              ),
+          ],
+        ),
       ),
-      body: allProductsAsyncValue.when(
-        data: (products) {
-          final productsByCategory = <String, List<RecordModel>>{};
-          for (var product in products) {
-            final category = product.data['category'] ?? 'Sin Categoría';
-            if (!productsByCategory.containsKey(category)) {
-              productsByCategory[category] = [];
-            }
-            productsByCategory[category]!.add(product);
-          }
+      floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Agrega más widgets aquí, por ejemplo, un banner o un título
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    isZoomed = !isZoomed; // Alternar entre Zoom In y Zoom Out
+                  });
+                },
+                child: AnimatedScale(
+                  scale: isZoomed ? 1.5 : 1.0, // Escala de la animación
+                  duration: const Duration(milliseconds: 1200), // Duración de la animación
+                  curve: Curves.easeInOut, // Curva de animación
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    width: double.infinity,
+                    height: 500,
+                    fit: BoxFit.fill,
+                  ),
+                ),
+              ),
+            ),
+            // Padding(
+            //   padding: const EdgeInsets.all(16.0),
+            //   child: Text(
+            //     'Bienvenidos a ${widget.title}',
+            //     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            //   ),
+            // ),
+            const SizedBox(height: 16),
+            Center(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300),
+                  color: Colors.grey.shade200,
+                ),
+                position: DecorationPosition.background,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'Si estas en zona sur de la ciudad de Salta, hace tu pedido y recibilo en la comidad de tu hogar.\nRecordá enviar tu ubicación exacta y un número de contacto alternativo para coordinar la entrega.',
+                        softWrap: true,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: RichText(
+                        text: TextSpan(
+                          text: '* Envío gratis en compras mayores a \$10.000',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black, // Ensure text color is set
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom:8.0),
+                      child: RichText(
+                        text: TextSpan(
+                          text: '** Los envios son despachados desde las 18hs en adelante de Lunes a Viernes',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Aquí se renderiza el contenido de allProductsAsyncValue
+            allProductsAsyncValue.when(
+              data: (products) {
+                final productsByCategory = <String, List<RecordModel>>{};
+                for (var product in products) {
+                  final category = product.data['category'] ?? 'Sin Categoría';
+                  if (!productsByCategory.containsKey(category)) {
+                    productsByCategory[category] = [];
+                  }
+                  productsByCategory[category]!.add(product);
+                }
 
-          return ListView(
-            children:
-                productsByCategory.entries.map((entry) {
-                  final category = entry.key;
-                  final categoryProducts = entry.value;
-
-                  return ExpansionTile(
-                    title: Text(category == '' ? 'Sin Categoría' : category),
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ListView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     children:
-                        categoryProducts.map((product) {
-                          final price = product.data['price'] ?? 0.0;
-                          final discountedPrice = price * 0.9;
+                        productsByCategory.entries.map((entry) {
+                          final category = entry.key;
+                          final categoryProducts = entry.value;
 
-                          return ListTile(
-                            title: Text(
-                              product.data['name'] ?? 'Producto sin nombre',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Precio original: \$${price.toStringAsFixed(2)}',
-                                  style: const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.red),
-                                ),
-                                Text(
-                                  'Precio con descuento: \$${discountedPrice.toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.green,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.remove),
-                                  onPressed: () {
-                                    setState(() {
-                                      if (cart.containsKey(product) && cart[product]! > 0) {
-                                        cart[product] = cart[product]! - 1;
-                                        if (cart[product] == 0) {
-                                          cart.remove(product);
-                                        }
-                                      }
-                                    });
-                                  },
-                                ),
-                                Text('${cart[product] ?? 0}', style: const TextStyle(fontSize: 16)),
-                                IconButton(
-                                  icon: const Icon(Icons.add),
-                                  onPressed: () {
-                                    setState(() {
-                                      cart[product] = (cart[product] ?? 0) + 1;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
+                          return ExpansionTile(
+                            title: Text(category == '' ? 'Sin Categoría' : category),
+                            children:
+                                categoryProducts.map((product) {
+                                  final price = product.data['price'] ?? 0.0;
+                                  final discountedPrice = price * 0.9;
+
+                                  return ListTile(
+                                    title: Text(
+                                      product.data['name'] ?? 'Producto sin nombre',
+                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    subtitle: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Precio original: \$${price.toStringAsFixed(2)}',
+                                          style: const TextStyle(
+                                            decoration: TextDecoration.lineThrough,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Precio con descuento: \$${discountedPrice.toStringAsFixed(2)}',
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.green,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.remove),
+                                          onPressed: () {
+                                            setState(() {
+                                              if (cart.containsKey(product) && cart[product]! > 0) {
+                                                cart[product] = cart[product]! - 1;
+                                                if (cart[product] == 0) {
+                                                  cart.remove(product);
+                                                }
+                                              }
+                                            });
+                                          },
+                                        ),
+                                        Text('${cart[product] ?? 0}', style: const TextStyle(fontSize: 16)),
+                                        IconButton(
+                                          icon: const Icon(Icons.add),
+                                          onPressed: () {
+                                            setState(() {
+                                              cart[product] = (cart[product] ?? 0) + 1;
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
                           );
                         }).toList(),
-                  );
-                }).toList(),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error: $error')),
+                  ),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stack) => Center(child: Text('Error: $error')),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -202,8 +288,7 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
       final discountedPrice = price * 0.9;
       final totalPrice = discountedPrice * quantity;
 
-      message +=
-          '- ${product.data['name']}: \$${discountedPrice.toStringAsFixed(2)} x $quantity = \$${totalPrice.toStringAsFixed(2)}\n';
+      message += '- ${product.data['name']} x $quantity = \$${totalPrice.toStringAsFixed(2)}\n';
     });
 
     final total = cart.entries.fold<double>(
