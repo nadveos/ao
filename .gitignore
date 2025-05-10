@@ -33,6 +33,7 @@ migrate_working_dir/
 .pub/
 /build/
 # Ignorar todo el contenido de build excepto build/web
+!/build/*
 !/build/web/
 !/build/web/*
 
