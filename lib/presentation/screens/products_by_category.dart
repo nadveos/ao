@@ -35,6 +35,7 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                   context: context,
                   builder: (context) {
                     double total = 0.0;
+                    double newRealTotal = 0.0;
 
                     return Column(
                       children: [
@@ -44,16 +45,18 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                                 cart.entries.map((entry) {
                                   final product = entry.key;
                                   final quantity = entry.value;
-                                  final price = product.data['price'] ?? 0.0;
-                                  final discountedPrice = price * 0.9;
-                                  final totalPrice = discountedPrice * quantity;
+                                  final price = product.data['promo_price'] ?? 0.0;
+                                  final realPrice = product.data['price'] ?? 0.0; 
+                                  final realTotal =realPrice * quantity;
 
+                                  final totalPrice = price * quantity;
+                                  newRealTotal += realTotal;
                                   total += totalPrice;
 
                                   return ListTile(
                                     title: Text(product.data['name'] ?? 'Producto'),
                                     subtitle: Text(
-                                      'Cantidad: $quantity\nPrecio con descuento: \$${discountedPrice.toStringAsFixed(2)}\nTotal: \$${totalPrice.toStringAsFixed(2)}',
+                                      'Cantidad: $quantity\nPrecio con descuento: \$${price.toStringAsFixed(2)}\nPrecio Real : \$$realPrice\nTotal: \$${totalPrice.toStringAsFixed(2)}',
                                     ),
                                   );
                                 }).toList(),
@@ -68,6 +71,10 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                                 'Total a pagar: \$${total.toStringAsFixed(2)}',
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
+                                
+                              ),
+                              Text('Estás AHORRANDO \$${(newRealTotal - total).toStringAsFixed(2)}, ', textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.greenAccent),
                               ),
                               ElevatedButton.icon(
                                 onPressed: () {
@@ -217,7 +224,8 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                             children:
                                 categoryProducts.map((product) {
                                   final price = product.data['price'] ?? 0.0;
-                                  final discountedPrice = price * 0.9;
+                                  final promoPrice = product.data['promo_price'] ?? 0.0;
+                                  // final discountedPrice = price * 0.9;
 
                                   return ListTile(
                                     title: Text(
@@ -231,15 +239,15 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                                           'Precio original: \$${price.toStringAsFixed(2)}',
                                           style: const TextStyle(
                                             decoration: TextDecoration.lineThrough,
-                                            color: Colors.red,
+                                            color: Colors.redAccent,
                                           ),
                                         ),
                                         Text(
-                                          'Precio con descuento: \$${discountedPrice.toStringAsFixed(2)}',
+                                          'Precio con descuento: \$${promoPrice.toStringAsFixed(2)}',
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.green,
+                                            color: Colors.greenAccent,
                                           ),
                                         ),
                                       ],
@@ -294,18 +302,27 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
 
     String message = 'Nuevo Pedido:\n';
     cart.forEach((product, quantity) {
-      final price = product.data['price'] ?? 0.0;
-      final discountedPrice = price * 0.9;
-      final totalPrice = discountedPrice * quantity;
+      final price = product.data['promo_price'] ?? 0.0;
+      final totalPrice = price * quantity;
+     
+
 
       message += '- ${product.data['name']} x $quantity = \$${totalPrice.toStringAsFixed(2)}\n';
     });
 
     final total = cart.entries.fold<double>(
       0.0,
-      (sum, entry) => sum + ((entry.key.data['price'] ?? 0.0) * 0.9 * entry.value),
+      (sum, entry) => sum + ((entry.key.data['promo_price'] ?? 0.0) * entry.value),
     );
+    final realTotal = cart.entries.fold<double>(
+      0.0,
+      (sum, entry) => sum + ((entry.key.data['price'] ?? 0.0) * entry.value),
+    );
+    final discount = realTotal - total;
+    message += '\nTotal Sin Descuentos: \$${realTotal.toStringAsFixed(2)}';
     message += '\nTotal: \$${total.toStringAsFixed(2)}';
+    message += '\nEstás AHORRANDO \$${discount.toStringAsFixed(2)}';
+    message += '\n\nPor favor, envíame tu dirección y número de contacto para coordinar la entrega.';
 
     return message;
   }
