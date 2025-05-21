@@ -214,104 +214,107 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                   child: ListView(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    children: productsByCategory.entries.map((entry) {
-                      final category = entry.key;
-                      final categoryProducts = entry.value;
+                    children:
+                        productsByCategory.entries.map((entry) {
+                          final category = entry.key;
+                          final categoryProducts = entry.value;
 
-                      return ExpansionTile(
-                        title: Text(category == '' ? 'Sin Categoría' : category),
-                        children: [
-                          GridView.builder(
-                            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 250,
-                              childAspectRatio: 0.8,
-                              crossAxisSpacing: 8,
-                              mainAxisSpacing: 8,
-                            ),
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: categoryProducts.length,
-                            itemBuilder: (context, index) {
-                              final product = categoryProducts[index];
-                              final price = product.data['price'] ?? 0.0;
-                              final promoPrice = product.data['promo_price'] ?? 0.0;
+                          return ExpansionTile(
+                            title: Text(category == '' ? 'Sin Categoría' : category),
+                            maintainState: true, // Mantiene el estado cuando se colapsa
+                            initiallyExpanded: false,
+                            children: [
+                              LayoutBuilder(
+                                builder: (context, constraints) {
+                                  return GridView.builder(
+                                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                                      maxCrossAxisExtent: 250,
+                                      childAspectRatio: 0.8,
+                                      crossAxisSpacing: 8,
+                                      mainAxisSpacing: 8,
+                                    ),
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount: categoryProducts.length,
+                                    cacheExtent: 500, // Mejora el rendimiento del scroll
+                                    addAutomaticKeepAlives: false, // Optimización de memoria
+                                    addRepaintBoundaries: true, // Mejora el rendimiento de renderizado
+                                    itemBuilder: (context, index) {
+                                      final product = categoryProducts[index];
+                                      final price = product.data['price'] ?? 0.0;
+                                      final promoPrice = product.data['promo_price'] ?? 0.0;
 
-                              return Card(
-                                margin: const EdgeInsets.all(8.0),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      const Icon(
-                                        Icons.image_not_supported,
-                                        size: 100,
-                                        color: Colors.grey,
-                                      ),
-                                      Text(
-                                        product.data['name'] ?? 'Producto sin nombre',
-                                        style: const TextStyle(fontWeight: FontWeight.bold),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      Text(
-                                        'Precio original: \$${price.toStringAsFixed(2)}',
-                                        style: const TextStyle(
-                                          decoration: TextDecoration.lineThrough,
-                                          color: Colors.redAccent,
-                                          fontSize: 12,
+                                      return Card(
+                                        margin: const EdgeInsets.all(8.0),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              const Icon(Icons.image_not_supported, size: 100, color: Colors.grey),
+                                              Text(
+                                                product.data['name'] ?? 'Producto sin nombre',
+                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              Text(
+                                                'Precio original: \$${price.toStringAsFixed(2)}',
+                                                style: const TextStyle(
+                                                  decoration: TextDecoration.lineThrough,
+                                                  color: Colors.redAccent,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                              Text(
+                                                'Precio con descuento: \$${promoPrice.toStringAsFixed(2)}',
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.greenAccent,
+                                                ),
+                                              ),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  IconButton(
+                                                    icon: const Icon(Icons.remove),
+                                                    iconSize: 20,
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        if (cart.containsKey(product) && cart[product]! > 0) {
+                                                          cart[product] = cart[product]! - 1;
+                                                          if (cart[product] == 0) {
+                                                            cart.remove(product);
+                                                          }
+                                                        }
+                                                      });
+                                                    },
+                                                  ),
+                                                  Text('${cart[product] ?? 0}', style: const TextStyle(fontSize: 16)),
+                                                  IconButton(
+                                                    icon: const Icon(Icons.add),
+                                                    iconSize: 20,
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        cart[product] = (cart[product] ?? 0) + 1;
+                                                      });
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        'Precio con descuento: \$${promoPrice.toStringAsFixed(2)}',
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.greenAccent,
-                                        ),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          IconButton(
-                                            icon: const Icon(Icons.remove),
-                                            iconSize: 20,
-                                            onPressed: () {
-                                              setState(() {
-                                                if (cart.containsKey(product) && cart[product]! > 0) {
-                                                  cart[product] = cart[product]! - 1;
-                                                  if (cart[product] == 0) {
-                                                    cart.remove(product);
-                                                  }
-                                                }
-                                              });
-                                            },
-                                          ),
-                                          Text(
-                                            '${cart[product] ?? 0}',
-                                            style: const TextStyle(fontSize: 16),
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(Icons.add),
-                                            iconSize: 20,
-                                            onPressed: () {
-                                              setState(() {
-                                                cart[product] = (cart[product] ?? 0) + 1;
-                                              });
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      );
-                    }).toList(),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          );
+                        }).toList(),
                   ),
                 );
               },
