@@ -16,7 +16,7 @@ class ProductsByCategoryPage extends ConsumerStatefulWidget {
 
 class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage> {
   final Map<RecordModel, int> cart = {}; // Carrito temporal
- bool isZoomed = true; // Estado para el zoom de la imagen
+  bool isZoomed = true; // Estado para el zoom de la imagen
   @override
   Widget build(BuildContext context) {
     final allProductsAsyncValue = ref.watch(allProductsProvider);
@@ -46,8 +46,8 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                                   final product = entry.key;
                                   final quantity = entry.value;
                                   final price = product.data['promo_price'] ?? 0.0;
-                                  final realPrice = product.data['price'] ?? 0.0; 
-                                  final realTotal =realPrice * quantity;
+                                  final realPrice = product.data['price'] ?? 0.0;
+                                  final realTotal = realPrice * quantity;
 
                                   final totalPrice = price * quantity;
                                   newRealTotal += realTotal;
@@ -71,10 +71,15 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                                 'Total a pagar: \$${total.toStringAsFixed(2)}',
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
-                                
                               ),
-                              Text('Estás AHORRANDO \$${(newRealTotal - total).toStringAsFixed(2)}, ', textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.greenAccent),
+                              Text(
+                                'Estás AHORRANDO \$${(newRealTotal - total).toStringAsFixed(2)}, ',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.greenAccent,
+                                ),
                               ),
                               ElevatedButton.icon(
                                 onPressed: () {
@@ -137,12 +142,7 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                   scale: isZoomed ? 1.5 : 1.0, // Escala de la animación
                   duration: const Duration(milliseconds: 1200), // Duración de la animación
                   curve: Curves.easeInOut, // Curva de animación
-                  child: Image.asset(
-                    'assets/images/logo.png',
-                    width: double.infinity,
-                    height: 500,
-                    fit: BoxFit.fill,
-                  ),
+                  child: Image.asset('assets/images/logo.png', width: double.infinity, height: 500, fit: BoxFit.fill),
                 ),
               ),
             ),
@@ -185,7 +185,7 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(bottom:8.0),
+                      padding: const EdgeInsets.only(bottom: 8.0),
                       child: RichText(
                         text: TextSpan(
                           text: '** Los envios son despachados por Uber Envios',
@@ -214,92 +214,104 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                   child: ListView(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    children:
-                        productsByCategory.entries.map((entry) {
-                          final category = entry.key;
-                          final categoryProducts = entry.value;
+                    children: productsByCategory.entries.map((entry) {
+                      final category = entry.key;
+                      final categoryProducts = entry.value;
 
-                          return ExpansionTile(
-                            title: Text(category == '' ? 'Sin Categoría' : category),
-                            children: [
-                              GridView.count(
-                                crossAxisCount: 2,
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                childAspectRatio: 0.7, // Adjust as needed
-                                children: categoryProducts.map((product) {
-                                  final price = product.data['price'] ?? 0.0;
-                                  final promoPrice = product.data['promo_price'] ?? 0.0;
+                      return ExpansionTile(
+                        title: Text(category == '' ? 'Sin Categoría' : category),
+                        children: [
+                          GridView.builder(
+                            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: 250,
+                              childAspectRatio: 0.8,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                            ),
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: categoryProducts.length,
+                            itemBuilder: (context, index) {
+                              final product = categoryProducts[index];
+                              final price = product.data['price'] ?? 0.0;
+                              final promoPrice = product.data['promo_price'] ?? 0.0;
 
-                                  return Card(
-                                    margin: const EdgeInsets.all(8.0),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                              return Card(
+                                margin: const EdgeInsets.all(8.0),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      const Icon(
+                                        Icons.image_not_supported,
+                                        size: 100,
+                                        color: Colors.grey,
+                                      ),
+                                      Text(
+                                        product.data['name'] ?? 'Producto sin nombre',
+                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      Text(
+                                        'Precio original: \$${price.toStringAsFixed(2)}',
+                                        style: const TextStyle(
+                                          decoration: TextDecoration.lineThrough,
+                                          color: Colors.redAccent,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Precio con descuento: \$${promoPrice.toStringAsFixed(2)}',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.greenAccent,
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Text(
-                                            product.data['name'] ?? 'Producto sin nombre',
-                                            style: const TextStyle(fontWeight: FontWeight.bold),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
+                                          IconButton(
+                                            icon: const Icon(Icons.remove),
+                                            iconSize: 20,
+                                            onPressed: () {
+                                              setState(() {
+                                                if (cart.containsKey(product) && cart[product]! > 0) {
+                                                  cart[product] = cart[product]! - 1;
+                                                  if (cart[product] == 0) {
+                                                    cart.remove(product);
+                                                  }
+                                                }
+                                              });
+                                            },
                                           ),
-                                          const SizedBox(height: 4),
                                           Text(
-                                            'Precio original: \$${price.toStringAsFixed(2)}',
-                                            style: const TextStyle(
-                                              decoration: TextDecoration.lineThrough,
-                                              color: Colors.redAccent,
-                                              fontSize: 12,
-                                            ),
+                                            '${cart[product] ?? 0}',
+                                            style: const TextStyle(fontSize: 16),
                                           ),
-                                          Text(
-                                            'Precio con descuento: \$${promoPrice.toStringAsFixed(2)}',
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.greenAccent,
-                                            ),
-                                          ),
-                                          const Spacer(), // Use Spacer to push buttons to the bottom
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              IconButton(
-                                                icon: const Icon(Icons.remove),
-                                                iconSize: 20, // Smaller icon
-                                                onPressed: () {
-                                                  setState(() {
-                                                    if (cart.containsKey(product) && cart[product]! > 0) {
-                                                      cart[product] = cart[product]! - 1;
-                                                      if (cart[product] == 0) {
-                                                        cart.remove(product);
-                                                      }
-                                                    }
-                                                  });
-                                                },
-                                              ),
-                                              Text('${cart[product] ?? 0}', style: const TextStyle(fontSize: 16)),
-                                              IconButton(
-                                                icon: const Icon(Icons.add),
-                                                iconSize: 20, // Smaller icon
-                                                onPressed: () {
-                                                  setState(() {
-                                                    cart[product] = (cart[product] ?? 0) + 1;
-                                                  });
-                                                },
-                                              ),
-                                            ],
+                                          IconButton(
+                                            icon: const Icon(Icons.add),
+                                            iconSize: 20,
+                                            onPressed: () {
+                                              setState(() {
+                                                cart[product] = (cart[product] ?? 0) + 1;
+                                              });
+                                            },
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ],
-                          );
-                        }).toList(),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    }).toList(),
                   ),
                 );
               },
@@ -321,8 +333,6 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
     cart.forEach((product, quantity) {
       final price = product.data['promo_price'] ?? 0.0;
       final totalPrice = price * quantity;
-     
-
 
       message += '- ${product.data['name']} x $quantity = \$${totalPrice.toStringAsFixed(2)}\n';
     });
