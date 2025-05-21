@@ -221,66 +221,83 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
 
                           return ExpansionTile(
                             title: Text(category == '' ? 'Sin Categoría' : category),
-                            children:
-                                categoryProducts.map((product) {
+                            children: [
+                              GridView.count(
+                                crossAxisCount: 2,
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                childAspectRatio: 0.7, // Adjust as needed
+                                children: categoryProducts.map((product) {
                                   final price = product.data['price'] ?? 0.0;
                                   final promoPrice = product.data['promo_price'] ?? 0.0;
-                                  // final discountedPrice = price * 0.9;
 
-                                  return ListTile(
-                                    title: Text(
-                                      product.data['name'] ?? 'Producto sin nombre',
-                                      style: const TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                    subtitle: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Precio original: \$${price.toStringAsFixed(2)}',
-                                          style: const TextStyle(
-                                            decoration: TextDecoration.lineThrough,
-                                            color: Colors.redAccent,
+                                  return Card(
+                                    margin: const EdgeInsets.all(8.0),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            product.data['name'] ?? 'Producto sin nombre',
+                                            style: const TextStyle(fontWeight: FontWeight.bold),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                        ),
-                                        Text(
-                                          'Precio con descuento: \$${promoPrice.toStringAsFixed(2)}',
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.greenAccent,
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Precio original: \$${price.toStringAsFixed(2)}',
+                                            style: const TextStyle(
+                                              decoration: TextDecoration.lineThrough,
+                                              color: Colors.redAccent,
+                                              fontSize: 12,
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.remove),
-                                          onPressed: () {
-                                            setState(() {
-                                              if (cart.containsKey(product) && cart[product]! > 0) {
-                                                cart[product] = cart[product]! - 1;
-                                                if (cart[product] == 0) {
-                                                  cart.remove(product);
-                                                }
-                                              }
-                                            });
-                                          },
-                                        ),
-                                        Text('${cart[product] ?? 0}', style: const TextStyle(fontSize: 16)),
-                                        IconButton(
-                                          icon: const Icon(Icons.add),
-                                          onPressed: () {
-                                            setState(() {
-                                              cart[product] = (cart[product] ?? 0) + 1;
-                                            });
-                                          },
-                                        ),
-                                      ],
+                                          Text(
+                                            'Precio con descuento: \$${promoPrice.toStringAsFixed(2)}',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.greenAccent,
+                                            ),
+                                          ),
+                                          const Spacer(), // Use Spacer to push buttons to the bottom
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              IconButton(
+                                                icon: const Icon(Icons.remove),
+                                                iconSize: 20, // Smaller icon
+                                                onPressed: () {
+                                                  setState(() {
+                                                    if (cart.containsKey(product) && cart[product]! > 0) {
+                                                      cart[product] = cart[product]! - 1;
+                                                      if (cart[product] == 0) {
+                                                        cart.remove(product);
+                                                      }
+                                                    }
+                                                  });
+                                                },
+                                              ),
+                                              Text('${cart[product] ?? 0}', style: const TextStyle(fontSize: 16)),
+                                              IconButton(
+                                                icon: const Icon(Icons.add),
+                                                iconSize: 20, // Smaller icon
+                                                onPressed: () {
+                                                  setState(() {
+                                                    cart[product] = (cart[product] ?? 0) + 1;
+                                                  });
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   );
                                 }).toList(),
+                              ),
+                            ],
                           );
                         }).toList(),
                   ),
