@@ -252,57 +252,69 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                             children: [
                                               const Icon(Icons.image_not_supported, size: 100, color: Colors.grey),
-                                              Text(
-                                                product.data['name'] ?? 'Producto sin nombre',
-                                                style: const TextStyle(fontWeight: FontWeight.bold),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              Text(
-                                                'Precio original: \$${price.toStringAsFixed(2)}',
-                                                style: const TextStyle(
-                                                  decoration: TextDecoration.lineThrough,
-                                                  color: Colors.redAccent,
-                                                  fontSize: 12,
+                                              Flexible(
+                                                child: Text(
+                                                  product.data['name'] ?? 'Producto sin nombre',
+                                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                                  maxLines: 2,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  textAlign: TextAlign.center,
                                                 ),
                                               ),
-                                              Text(
-                                                'Precio con descuento: \$${promoPrice.toStringAsFixed(2)}',
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.greenAccent,
+                                              FittedBox(
+                                                fit: BoxFit.scaleDown,
+                                                child: Text(
+                                                  'Precio original: \$${price.toStringAsFixed(2)}',
+                                                  style: const TextStyle(
+                                                    decoration: TextDecoration.lineThrough,
+                                                    color: Colors.redAccent,
+                                                    fontSize: 12,
+                                                  ),
                                                 ),
                                               ),
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  IconButton(
-                                                    icon: const Icon(Icons.remove),
-                                                    iconSize: 20,
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        if (cart.containsKey(product) && cart[product]! > 0) {
-                                                          cart[product] = cart[product]! - 1;
-                                                          if (cart[product] == 0) {
-                                                            cart.remove(product);
+                                              FittedBox(
+                                                fit: BoxFit.scaleDown,
+                                                child: Text(
+                                                  'Precio con descuento: \$${promoPrice.toStringAsFixed(2)}',
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.greenAccent,
+                                                  ),
+                                                ),
+                                              ),
+                                              FittedBox(
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    IconButton(
+                                                      icon: const Icon(Icons.remove),
+                                                      iconSize: 20,
+                                                      padding: EdgeInsets.zero,
+                                                      constraints: const BoxConstraints(),
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          if (cart.containsKey(product) && cart[product]! > 0) {
+                                                            cart[product] = cart[product]! - 1;
+                                                            if (cart[product] == 0) {
+                                                              cart.remove(product);
+                                                            }
                                                           }
-                                                        }
-                                                      });
-                                                    },
-                                                  ),
-                                                  Text('${cart[product] ?? 0}', style: const TextStyle(fontSize: 16)),
-                                                  IconButton(
-                                                    icon: const Icon(Icons.add),
-                                                    iconSize: 20,
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        cart[product] = (cart[product] ?? 0) + 1;
-                                                      });
-                                                    },
-                                                  ),
-                                                ],
+                                                        });
+                                                      },
+                                                    ),
+                                                    Text('${cart[product] ?? 0}', style: const TextStyle(fontSize: 16)),
+                                                    IconButton(
+                                                      icon: const Icon(Icons.add),
+                                                      iconSize: 20,
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          cart[product] = (cart[product] ?? 0) + 1;
+                                                        });
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ],
                                           ),
