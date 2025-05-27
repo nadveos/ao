@@ -16,7 +16,7 @@ class ProductsByCategoryPage extends ConsumerStatefulWidget {
 
 class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage> {
   final Map<RecordModel, int> cart = {}; // Carrito temporal
-  bool isZoomed = true; // Estado para el zoom de la imagen
+  bool isZoomed = false; // Estado para el zoom de la imagen
   @override
   Widget build(BuildContext context) {
     final allProductsAsyncValue = ref.watch(allProductsProvider);
@@ -218,9 +218,10 @@ class _ProductsByCategoryPageState extends ConsumerState<ProductsByCategoryPage>
                         productsByCategory.entries.map((entry) {
                           final category = entry.key;
                           final categoryProducts = entry.value;
+                        final totalProductsInCategory = categoryProducts.length;
 
                           return ExpansionTile(
-                            title: Text(category == '' ? 'Sin Categoría' : category),
+                            title: Text(category == '' ? 'Sin Categoría ($totalProductsInCategory)' : '$category ($totalProductsInCategory)'),
                             maintainState: true, // Mantiene el estado cuando se colapsa
                             initiallyExpanded: false,
                             children: [
